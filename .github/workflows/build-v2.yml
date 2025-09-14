@@ -12,6 +12,7 @@ permissions:
 on:
   push:
     branches:
+      - test-ci
       - develop
       - nightly
 
@@ -134,8 +135,9 @@ jobs:
     if: >
       github.ref_name == 'develop' ||
       github.ref_name == 'nightly' ||
-      github.ref_name == 'master'
-    environment: r2-${{ github.ref_name }}
+      github.ref_name == 'master' ||
+      github.ref_name == 'test-ci'
+    environment: r2-${{ github.ref_name == 'test-ci' && 'develop' || github.ref_name }}
     permissions:
       actions: write # Required for deleting artifacts
       contents: read
@@ -149,10 +151,24 @@ jobs:
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
-          egress-policy: audit
+          egress-policy: block
           allowed-endpoints: |
             ${{ vars.COMMON_ALLOWED_ENDPOINTS }}
             ${{ secrets.CLOUDFLARE_R2_ALLOWED_HOST }}:443
+            github.com:443
+            api.github.com:443
+            codeload.github.com:443
+            pipelines.actions.githubusercontent.com:443
+            objects.githubusercontent.com:443
+
+      - name: Debug - Show allowed endpoints
+        run: |
+          echo "=== Environment Variables Debug ==="
+          echo "COMMON_ALLOWED_ENDPOINTS (first 100 chars):"
+          echo "${{ vars.COMMON_ALLOWED_ENDPOINTS }}" | head -c 100
+          echo "..."
+          echo "GitHub ref name: ${{ github.ref_name }}"
+          echo "Environment: r2-${{ github.ref_name == 'test-ci' && 'develop' || github.ref_name }}"
 
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0

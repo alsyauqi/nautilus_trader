@@ -20,9 +20,9 @@ echo "---"
 # Skip index.html
 files=$(echo "$files" | grep -v "^index\.html$")
 
-# Clean up dev wheels on the develop branch
-if [[ "$branch_name" == "develop" ]]; then
-  echo "Cleaning up .dev wheels for the develop branch..."
+# Clean up dev wheels on the develop or test-ci branch
+if [[ "$branch_name" == "develop" ]] || [[ "$branch_name" == "test-ci" ]]; then
+  echo "Cleaning up .dev wheels for the $branch_name branch..."
   echo "All files before filtering:"
   echo "$files"
 
