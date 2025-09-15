@@ -305,7 +305,7 @@ def _build_extensions() -> list[Extension]:
 
 
 def _build_distribution(extensions: list[Extension]) -> Distribution:
-    nthreads = os.cpu_count() or 1
+    nthreads = 1
     if IS_WINDOWS:
         nthreads = min(nthreads, 60)
     print(f"nthreads={nthreads}")
